@@ -1,0 +1,7 @@
+*
+!.gitignore
+
+!boss.ipynb
+
+!requirements.txt
+!timstamps.json

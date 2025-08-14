@@ -1,0 +1,15 @@
+huggingface_hub
+transformers
+pydub
+simpleaudio 
+librosa 
+moviepy
+ffmpeg-python
+torch
+elevenlabs
+unrealspeech
+python-vlc
+playsound
+pygame
+python-vlc
+soundfile
