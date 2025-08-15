@@ -12,9 +12,13 @@ from unrealspeech import UnrealSpeechAPI
 load_dotenv()
 app = FastAPI()
 
+origins = [
+    "https://yt-shorts-maker-1.onrender.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
