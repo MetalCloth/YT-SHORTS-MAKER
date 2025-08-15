@@ -2,7 +2,7 @@ fastapi
 uvicorn[standard]
 python-dotenv
 requests
-unrealspeechio
+unrealspeech
 ffmpeg-python
 pydub
 librosa
