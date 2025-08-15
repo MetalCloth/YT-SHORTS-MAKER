@@ -1,4 +1,6 @@
 *
+
+!src/
 !.gitignore
 !boss.ipynb
 !requirements.txt

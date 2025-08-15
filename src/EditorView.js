@@ -13,13 +13,35 @@ const EditorView = ({ videoSrc, onGoBack }) => {
     }
   };
 
-  const handleSubmit = () => {
-    if (!text.trim()) {
-      alert("Please write something before submitting!");
-      return;
+  const handleSubmit = async () => {
+  if (!text.trim()) {
+    alert('Please write something before submitting!');
+    return;
+  }
+
+  try {
+    // Make POST request to FastAPI backend
+    const res = await fetch("http://localhost:8000/api/voice", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: text }), // Send actual text
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
     }
-    alert(`Submitted!\n\nText: "${text}"`);
-  };
+
+    const data = await res.json();
+    console.log("Message sent! Backend says:", data.message);
+    alert(`Message sent! Backend says: ${data.message}`);
+
+  } catch (error) {
+    console.error("Error sending text:", error);
+    alert("Failed to send text to backend.");
+  }
+};
 
   return (
     <div className="editor-view">
