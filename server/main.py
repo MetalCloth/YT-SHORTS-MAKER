@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from unrealspeech import UnrealSpeechAPI
 
+# --- Initialization ---
 load_dotenv()
 app = FastAPI()
 
@@ -24,6 +25,8 @@ if not api_key:
     raise ValueError("UNREAL_SPEECH_API_KEY not found in environment variables.")
 speech_api = UnrealSpeechAPI(api_key)
 
+
+# --- Main API Endpoint ---
 @app.post('/api/voice')
 async def process_video_endpoint(request: Request):
     try:
@@ -34,23 +37,32 @@ async def process_video_endpoint(request: Request):
         if not message or not video_filename:
             raise HTTPException(status_code=400, detail="Missing 'message' or 'video' in request.")
 
+        # 1. Generate audio and timestamps from the message
         audio_data = speech_api.speech(
-            text=message, voice_id="Will", timestamp_type="word", bitrate="192k"
+            text=message,
+            voice_id="Will",
+            timestamp_type="word",
+            bitrate="192k"
         )
 
+        # 2. Download audio and timestamp files
         audio_content = requests.get(audio_data['OutputUri']).content
         timestamp_content = requests.get(audio_data['TimestampsUri']).content
 
+        # 3. Save the downloaded audio to a temporary file
         temp_audio_path = 'temp_audio.mp3'
         with open(temp_audio_path, 'wb') as file:
             file.write(audio_content)
 
+        # 4. Process timestamps and group words into phrases
         data_json = json.loads(timestamp_content.decode("utf-8"))
         phrases = group_words_into_phrases(data_json)
 
+        # 5. Define input video path and final output path
         input_video_path = f"video_templates/{video_filename}"
         output_video_path = 'output.mp4'
 
+        # 6. Run the ffmpeg function to combine video, audio, and text
         generate_video_with_text(
             input_file=input_video_path,
             audio_file=temp_audio_path,
@@ -59,10 +71,15 @@ async def process_video_endpoint(request: Request):
             phrases=phrases
         )
 
+        # 7. Return the generated video file
         return FileResponse(output_video_path, media_type='video/mp4', filename='generated_video.mp4')
+
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to process video on server: {str(e)}")
+
+
+# --- Helper Functions ---
 
 def group_words_into_phrases(words, max_words_per_phrase=3):
     if not words: return []
@@ -81,7 +98,7 @@ def add_timed_text(stream, text, start, end):
     font_ratio = max(0.05, 0.08 - (len(text) / 50) * 0.01)
     return stream.drawtext(
         text=text,
-        fontfile="ARIAL.tff",
+        fontfile="ARIAL.TTF",
         fontsize=f"w*{font_ratio}", fontcolor="white",
         x="(w-text_w)/2", y="(h-text_h)/2",
         borderw=6, bordercolor="black",
