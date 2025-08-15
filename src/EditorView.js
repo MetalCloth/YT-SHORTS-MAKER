@@ -24,7 +24,7 @@ const EditorView = ({ videoSrc, onGoBack, setGenerating }) => {
 
     try {
       // Step 1: Your original POST request to send the data and queue the job.
-      const postRes = await fetch("http://localhost:8000/api/voice", {
+      const postRes = await fetch("/api/voice", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +38,7 @@ const EditorView = ({ videoSrc, onGoBack, setGenerating }) => {
       console.log("Data sent. Now generating and fetching the video...");
 
       // Step 2: Immediately make a GET request to trigger generation and receive the file.
-      const getRes = await fetch("http://localhost:8000/api/voice");
+      const getRes = await fetch("/api/voice");
       
       if (!getRes.ok) {
         throw new Error(`Video generation failed: ${getRes.status}`);
