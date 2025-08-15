@@ -7,12 +7,14 @@ Stop spending hours editing. **AutoShorts** is a powerful tool that transforms y
 ---
 
 ## Example
-* **Before**:
+* **Before**
+  
  https://github.com/user-attachments/assets/1a53ee48-60af-494e-b8a7-2c0c1301bca2
 
 * **Prompt**:
   
-* **Output**:
+* **Output**
+  
   https://github.com/user-attachments/assets/46b975e5-2262-4b04-b1b1-d193c9c95485
 
 
