@@ -1,6 +1,7 @@
 *
 
 !src/
+!src/main.py
 !.gitignore
 !boss.ipynb
 !requirements.txt

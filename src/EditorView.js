@@ -26,7 +26,7 @@ const EditorView = ({ videoSrc, onGoBack }) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message: text }), // Send actual text
+      body: JSON.stringify({ message: text ,video:videoSrc}), // Send actual text
     });
 
     if (!res.ok) {
