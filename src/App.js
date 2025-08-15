@@ -5,6 +5,7 @@ import EditorView from './EditorView';
 import './App.css';
 
 const videoData = [
+  'https://github.com/user-attachments/assets/1a53ee48-60af-494e-b8a7-2c0c1301bca2',
   'https://github.com/user-attachments/assets/17b8cd7f-88e4-43b1-a46a-e02f84b341f2',
   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -17,6 +18,7 @@ const videoData = [
 function App() {
   const [currentView, setCurrentView] = useState('grid');
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false); // NEW STATE
 
   const handleCardClick = (videoUrl) => {
     setSelectedVideo(videoUrl);
@@ -26,7 +28,20 @@ function App() {
   const handleGoBack = () => {
     setSelectedVideo(null);
     setCurrentView('grid');
+    setIsGenerating(false); // Reset blur state when going back
   };
+
+  // NEW FUNCTION to update the generating state
+  const setGeneratingState = (generating) => {
+    setIsGenerating(generating);
+  };
+  
+  // Conditionally apply class to body
+  if (isGenerating) {
+    document.body.classList.add('blur-loading');
+  } else {
+    document.body.classList.remove('blur-loading');
+  }
 
   return (
     <div className="container">
@@ -47,7 +62,11 @@ function App() {
           </div>
         </>
       ) : (
-        <EditorView videoSrc={selectedVideo} onGoBack={handleGoBack} />
+        <EditorView
+          videoSrc={selectedVideo}
+          onGoBack={handleGoBack}
+          setGenerating={setGeneratingState} // PASS THE FUNCTION
+        />
       )}
     </div>
   );

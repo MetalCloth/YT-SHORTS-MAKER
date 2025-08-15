@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse 
 import ffmpeg
 import dotenv
 import json
@@ -55,7 +56,7 @@ async def get_voice():
             voice_id="Will",      # Choose voice: Scarlett, Dan, Liv, etc.
             timestamp_type="word",    # word or sentence
             bitrate="192k",
-            pitch=0.92
+            pitch=1
         )
             return preprocess(audio_data=audio_data)
 
@@ -87,7 +88,7 @@ def preprocess(audio_data):
     function(input_file=mp4,audio_file="test.mp3",output_file='output.mp4',data_json=data_json,phrases=phrases)
 
 
-    return {'output':'Fucking completed work'}
+    return FileResponse('output.mp4',media_type='video/mp4',filename='generated_video.mp4')
 
 
 
@@ -182,5 +183,3 @@ def function(input_file,audio_file,output_file,data_json,phrases):
 
 
 
-
-# if not api_key:
