@@ -99,16 +99,26 @@ def group_words_into_phrases(words, max_words_per_phrase=3):
             if not is_last_word: phrase_start_time = words[i + 1]["start"]
     return phrases
 
-def add_timed_text(stream, text, start, end):
-    font_ratio = max(0.05, 0.08 - (len(text) / 50) * 0.01)
+def add_timed_text(stream, text, start, end, max_font_ratio=0.08, min_font_ratio=0.05,
+                   fontcolor="white", outline=6):
+    """
+    Adds centered text that auto-shrinks for long words.
+    """
+    font_ratio = max(min_font_ratio, max_font_ratio - (len(text) / 50) * 0.01)
+
     return stream.drawtext(
         text=text,
         fontfile="IMPACT.TTF",
-        fontsize=f"w*{font_ratio}", fontcolor="white",
-        x="(w-text_w)/2", y="(h-text_h)/2",
-        borderw=6, bordercolor="black",
+        fontsize=f"w*{font_ratio}",
+        fontcolor=fontcolor,
+        x="(w-text_w)/2",
+        y="(h-text_h)/2",
+        borderw=outline,
+        bordercolor="black",
+        box=0,
         enable=f"between(t,{start},{end})"
     )
+
 
 def overlay_text_on_video(stream, phrases):
     for p in phrases:
