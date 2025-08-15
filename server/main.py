@@ -40,9 +40,10 @@ async def process_video_endpoint(request: Request):
         # 1. Generate audio and timestamps from the message
         audio_data = speech_api.speech(
             text=message,
-            voice_id="Will",
-            timestamp_type="word",
-            bitrate="192k"
+            voice_id="Will",      # Choose voice: Scarlett, Dan, Liv, etc.
+            timestamp_type="word",    # word or sentence
+            bitrate="192k",
+            pitch=1
         )
 
         # 2. Download audio and timestamp files
@@ -98,7 +99,7 @@ def add_timed_text(stream, text, start, end):
     font_ratio = max(0.05, 0.08 - (len(text) / 50) * 0.01)
     return stream.drawtext(
         text=text,
-        fontfile="ARIAL.TTF",
+        fontfile="IMPACT.TTF",
         fontsize=f"w*{font_ratio}", fontcolor="white",
         x="(w-text_w)/2", y="(h-text_h)/2",
         borderw=6, bordercolor="black",
