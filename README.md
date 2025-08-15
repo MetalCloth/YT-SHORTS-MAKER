@@ -1,76 +1,83 @@
-
-# Getting Started with Create React App
-
-https://github.com/user-attachments/assets/17b8cd7f-88e4-43b1-a46a-e02f84b341f2
-
-https://github.com/user-attachments/assets/1a53ee48-60af-494e-b8a7-2c0c1301bca2
+# AutoShorts 🚀 - AI-Powered Shorts & Reels Creator
 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+Stop spending hours editing. **AutoShorts** is a powerful tool that transforms your text into engaging, ready-to-post vertical videos for YouTube Shorts, Instagram Reels, and TikTok. Simply choose a template, type your script, and let the AI handle the voice-over and synchronized captions.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## ✨ Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+* **Automated Workflow:** Go from a simple text script to a downloadable video in seconds.
+* **AI Voice Generation:** Leverages the UnrealSpeech API for high-quality, realistic text-to-speech voice-overs.
+* **Synchronized Captions:** Uses FFmpeg to automatically generate and burn word-level subtitles into the video, perfectly synced with the audio.
+* **Template-Based Creation:** Select from a grid of video templates to get started quickly.
+* **Interactive UI:** A sleek and responsive React interface with loading states and a full-page blur effect during video generation.
+* **Direct Downloads:** Your final video is downloaded directly in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🛠️ Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Frontend
+* **Framework:** React
+* **Language:** JavaScript (ES6+)
+* **Styling:** CSS
 
-### `npm run build`
+### Backend
+* **Framework:** FastAPI
+* **Language:** Python 3.8+
+* **Video Processing:** FFmpeg
+* **AI Voice API:** UnrealSpeech
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🚀 Getting Started
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Follow these steps to get AutoShorts running locally.
 
-### `npm run eject`
+### Prerequisites
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Make sure you have the following installed on your system:
+* **Node.js** (v16 or later) and **npm**
+* **Python** (v3.8 or later)
+* **FFmpeg:** This is a **critical** dependency. You must install it from the [official FFmpeg website](https://ffmpeg.org/download.html) and ensure it's accessible from your system's command line.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Backend Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1.  Navigate to your backend directory.
+2.  Create and activate a Python virtual environment:
+    ```bash
+    # Create the environment
+    python -m venv venv
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+    # Activate on Windows: .\venv\Scripts\activate
+    # Activate on Mac/Linux: source venv/bin/activate
+    ```
+3.  Install the required Python packages:
+    ```bash
+    pip install fastapi "uvicorn[standard]" python-dotenv unrealspeech requests ffmpeg-python python-multipart
+    ```
+4.  Create a `.env` file in the backend directory and add your API key:
+    ```
+    UNREAL_SPEECH_API_KEY="your_unrealspeech_api_key_here"
+    ```
 
-## Learn More
+### Frontend Setup
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1.  Navigate to your frontend directory.
+2.  Install the necessary npm packages:
+    ```bash
+    npm install
+    ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## ▶️ Usage
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+You must have **both** the backend and frontend servers running in separate terminals.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**1. Start the Backend Server:**
+```bash
+# In the backend directory (with venv active)
+uvicorn main:app --reload
