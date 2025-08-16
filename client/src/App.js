@@ -4,8 +4,8 @@ import EditorView from './EditorView';
 import './App.css';
 
 const videoData = [
-  { url: '/video_templates/github_video_1.mp4', filename: 'github_video_1.mp4' },
-  { url: '/video_templates/github_video_2.mp4', filename: 'github_video_2.mp4' },
+  { url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', filename: 'github_video_1.mp4' },
+  { url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', filename: 'github_video_2.mp4' },
   { url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', filename: 'BigBuckBunny.mp4' },
 ];
 
