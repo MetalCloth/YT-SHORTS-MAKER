@@ -4,8 +4,8 @@ import EditorView from './EditorView';
 import './App.css';
 
 const videoData = [
-  { url: 'https://github.com/user-attachments/assets/1a53ee48-60af-494e-b8a7-2c0c1301bca2', filename: 'github_video_1.mp4' },
-  { url: 'https://github.com/user-attachments/assets/17b8cd7f-88e4-43b1-a46a-e02f84b341f2', filename: 'github_video_2.mp4' },
+  { url: '/video_templates/github_video_1.mp4', filename: 'github_video_1.mp4' },
+  { url: '/video_templates/github_video_2.mp4', filename: 'github_video_2.mp4' },
   { url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', filename: 'BigBuckBunny.mp4' },
 ];
 
