@@ -101,21 +101,22 @@ def group_words_into_phrases(words, max_words_per_phrase=3):
             if not is_last_word: phrase_start_time = words[i + 1]["start"]
     return phrases
 
-def add_timed_text(stream, text, start, end, max_font_ratio=0.08, min_font_ratio=0.05,
-                   fontcolor="white", outline=6):
+def add_timed_text(stream, text, start, end,
+                   fontfile="fonts/impact.ttf",
+                   fontcolor="white"):
     """
-    Adds centered text that auto-shrinks for long words.
+    Adds Impact text, auto-shrinks if too long to prevent overflow.
     """
-    font_ratio = max(min_font_ratio, max_font_ratio - (len(text) / 50) * 0.01)
+    safe_text = text.replace(":", "\\:")  # escape colons for FFmpeg
 
     return stream.drawtext(
-        text=text,
-        fontfile="IMPACT.TTF",
-        fontsize=f"w*{font_ratio}",
+        text=safe_text,
+        fontfile=fontfile,
+        fontsize=f"min(h*0.07, w/(len('{safe_text}')*0.6))",
         fontcolor=fontcolor,
         x="(w-text_w)/2",
-        y="(h-text_h)/2",
-        borderw=outline,
+        y="h-(text_h*2)",                # bottom-ish
+        borderw="h*0.004",               # relative outline
         bordercolor="black",
         box=0,
         enable=f"between(t,{start},{end})"
