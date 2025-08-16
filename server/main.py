@@ -12,10 +12,14 @@ from unrealspeech import UnrealSpeechAPI
 load_dotenv()
 app = FastAPI()
 
+# Get the absolute path to the directory where this script is located.
+# This is crucial for finding files like fonts on the server.
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+
 origins = [
     "https://yt-shorts-maker-1.onrender.com",
-    "https://yt-shorts-maker-t1fy.onrender.com"
-    
+    "https://yt-shorts-maker-t1fy.onrender.com",
 ]
 
 app.add_middleware(
@@ -43,33 +47,23 @@ async def process_video_endpoint(request: Request):
         if not message or not video_filename:
             raise HTTPException(status_code=400, detail="Missing 'message' or 'video' in request.")
 
-        # 1. Generate audio and timestamps from the message
         audio_data = speech_api.speech(
-            text=message,
-            voice_id="Will",      # Choose voice: Scarlett, Dan, Liv, etc.
-            timestamp_type="word",    # word or sentence
-            bitrate="192k",
-            pitch=1
+            text=message, voice_id="Will", timestamp_type="word", bitrate="192k", pitch=1
         )
 
-        # 2. Download audio and timestamp files
         audio_content = requests.get(audio_data['OutputUri']).content
         timestamp_content = requests.get(audio_data['TimestampsUri']).content
 
-        # 3. Save the downloaded audio to a temporary file
         temp_audio_path = 'temp_audio.mp3'
         with open(temp_audio_path, 'wb') as file:
             file.write(audio_content)
 
-        # 4. Process timestamps and group words into phrases
         data_json = json.loads(timestamp_content.decode("utf-8"))
         phrases = group_words_into_phrases(data_json)
 
-        # 5. Define input video path and final output path
         input_video_path = f"video_templates/{video_filename}"
         output_video_path = 'output.mp4'
 
-        # 6. Run the ffmpeg function to combine video, audio, and text
         generate_video_with_text(
             input_file=input_video_path,
             audio_file=temp_audio_path,
@@ -78,7 +72,6 @@ async def process_video_endpoint(request: Request):
             phrases=phrases
         )
 
-        # 7. Return the generated video file
         return FileResponse(output_video_path, media_type='video/mp4', filename='generated_video.mp4')
 
     except Exception as e:
@@ -107,10 +100,14 @@ def add_timed_text(stream, text, start, end, max_font_ratio=0.08, min_font_ratio
     Adds centered text that auto-shrinks for long words.
     """
     font_ratio = max(min_font_ratio, max_font_ratio - (len(text) / 50) * 0.01)
+    
+    # FINAL FIX: Create an absolute path to the font file.
+    # This tells FFmpeg exactly where to find the font, which solves server environment issues.
+    font_file_path = os.path.join(script_dir, "IMPACT.TTF")
 
     return stream.drawtext(
         text=text,
-        fontfile="IMPACT.TTF",
+        fontfile=font_file_path, # Use the new, full path
         fontsize=f"w*{font_ratio}",
         fontcolor=fontcolor,
         x="(w-text_w)/2",
@@ -134,4 +131,4 @@ def generate_video_with_text(input_file, audio_file, output_file, data_json, phr
     input_audio_stream = ffmpeg.input(audio_file).audio
     video_with_text = overlay_text_on_video(input_video_stream, phrases)
     (ffmpeg.output(video_with_text, input_audio_stream, output_file, vcodec='libx264', acodec='aac', strict='experimental')
-     .overwrite_output().run())
+      .overwrite_output().run())
