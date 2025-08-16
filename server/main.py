@@ -15,6 +15,7 @@ app = FastAPI()
 origins = [
     "https://yt-shorts-maker-1.onrender.com",
     "https://yt-shorts-maker-t1fy.onrender.com",
+    "https://yt-shorts-maker.vercel.app/"
 ]
 
 app.add_middleware(
