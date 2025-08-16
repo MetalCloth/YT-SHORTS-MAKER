@@ -12,11 +12,6 @@ from unrealspeech import UnrealSpeechAPI
 load_dotenv()
 app = FastAPI()
 
-# Get the absolute path to the directory where this script is located.
-# This is crucial for finding files like fonts on the server.
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-
 origins = [
     "https://yt-shorts-maker-1.onrender.com",
     "https://yt-shorts-maker-t1fy.onrender.com",
@@ -35,22 +30,37 @@ if not api_key:
     raise ValueError("UNREAL_SPEECH_API_KEY not found in environment variables.")
 speech_api = UnrealSpeechAPI(api_key)
 
-
 # --- Main API Endpoint ---
 @app.post('/api/voice')
 async def process_video_endpoint(request: Request):
+    temp_video_path = 'temp_video.mp4'
     try:
         response_data = await request.json()
         message = response_data.get('message')
-        video_filename = response_data.get('video')
+        # This will be the unique part of the Cloudinary URL, e.g., "v12345/my_video.mp4"
+        video_filename_id = response_data.get('video')
 
-        if not message or not video_filename:
+        if not message or not video_filename_id:
             raise HTTPException(status_code=400, detail="Missing 'message' or 'video' in request.")
 
+        # --- Download video from Cloudinary ---
+        # IMPORTANT: Replace with your actual Cloudinary base URL
+        CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dx2wns9yn/video/upload/"
+        video_url = f"{CLOUDINARY_BASE_URL}{video_filename_id}"
+        
+        try:
+            video_response = requests.get(video_url, stream=True)
+            video_response.raise_for_status()
+            with open(temp_video_path, 'wb') as file:
+                for chunk in video_response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=404, detail=f"Could not download video from cloud: {e}")
+        
+        # --- Continue with existing logic ---
         audio_data = speech_api.speech(
             text=message, voice_id="Will", timestamp_type="word", bitrate="192k", pitch=1
         )
-
         audio_content = requests.get(audio_data['OutputUri']).content
         timestamp_content = requests.get(audio_data['TimestampsUri']).content
 
@@ -61,7 +71,7 @@ async def process_video_endpoint(request: Request):
         data_json = json.loads(timestamp_content.decode("utf-8"))
         phrases = group_words_into_phrases(data_json)
 
-        input_video_path = f"video_templates/{video_filename}"
+        input_video_path = temp_video_path
         output_video_path = 'output.mp4'
 
         generate_video_with_text(
@@ -77,10 +87,11 @@ async def process_video_endpoint(request: Request):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to process video on server: {str(e)}")
+    finally:
+        if os.path.exists(temp_video_path):
+            os.remove(temp_video_path)
 
-
-# --- Helper Functions ---
-
+# --- Helper functions ---
 def group_words_into_phrases(words, max_words_per_phrase=3):
     if not words: return []
     phrases, current_phrase, phrase_start_time = [], [], words[0]["start"]
@@ -96,28 +107,13 @@ def group_words_into_phrases(words, max_words_per_phrase=3):
 
 def add_timed_text(stream, text, start, end, max_font_ratio=0.08, min_font_ratio=0.05,
                    fontcolor="white", outline=6):
-    """
-    Adds centered text that auto-shrinks for long words.
-    """
     font_ratio = max(min_font_ratio, max_font_ratio - (len(text) / 50) * 0.01)
-    
-    # FINAL FIX: Create an absolute path to the font file.
-    # This tells FFmpeg exactly where to find the font, which solves server environment issues.
-    font_file_path = os.path.join(script_dir, "IMPACT.TTF")
-
+    font_file_path = "IMPACT.TTF" 
     return stream.drawtext(
-        text=text,
-        fontfile=font_file_path, # Use the new, full path
-        fontsize=f"w*{font_ratio}",
-        fontcolor=fontcolor,
-        x="(w-text_w)/2",
-        y="(h-text_h)/2",
-        borderw=outline,
-        bordercolor="black",
-        box=0,
+        text=text, fontfile=font_file_path, fontsize=f"w*{font_ratio}", fontcolor=fontcolor,
+        x="(w-text_w)/2", y="(h-text_h)/2", borderw=outline, bordercolor="black", box=0,
         enable=f"between(t,{start},{end})"
     )
-
 
 def overlay_text_on_video(stream, phrases):
     for p in phrases:

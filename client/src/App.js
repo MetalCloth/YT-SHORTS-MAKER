@@ -3,11 +3,22 @@ import VideoCard from './VideoCard';
 import EditorView from './EditorView';
 import './App.css';
 
+// IMPORTANT: Replace these with your actual Cloudinary URLs
 const videoData = [
-  { url: 'https://github.com/user-attachments/assets/1a53ee48-60af-494e-b8a7-2c0c1301bca2', filename: 'f.mp4' },
-  { url: 'https://github.com/user-attachments/assets/17b8cd7f-88e4-43b1-a46a-e02f84b341f2', filename: 'github_video_2.mp4' },
-  { url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', filename: 'BigBuckBunny.mp4' },
+  { 
+    url: 'https://res.cloudinary.com/dx2wns9yn/video/upload/v1755359695/github_video_1_dcitx6.mp4', 
+    filename: 'v1755359695/github_video_1_dcitx6.mp4' 
+  },
+  { 
+    url: 'https://res.cloudinary.com/dx2wns9yn/video/upload/v1755359641/github_video_2_mkolsd.mp4',
+    filename: 'v1755359641/github_video_2_mkolsd.mp4' 
+  },
+  { 
+    url: 'https://res.cloudinary.com/dx2wns9yn/video/upload/v1755359640/BigBuckBunny_he2esq.mp4',
+    filename: 'v1755359640/BigBuckBunny_he2esq.mp4'
+  },
 ];
+
 
 function App() {
   const [currentView, setCurrentView] = useState('grid');
