@@ -12,9 +12,11 @@ from unrealspeech import UnrealSpeechAPI
 load_dotenv()
 app = FastAPI()
 
+
 origins = [
     "https://yt-shorts-maker-1.onrender.com",
-    "https://yt-shorts-maker-t1fy.onrender.com"
+    "https://yt-shorts-maker-t1fy.onrender.com",
+    'https://yt-shorts-maker-t1fy.onrender.com/api/voice'
     
 ]
 
