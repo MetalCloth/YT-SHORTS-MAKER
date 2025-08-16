@@ -33,31 +33,20 @@ speech_api = UnrealSpeechAPI(api_key)
 # --- Main API Endpoint ---
 @app.post('/api/voice')
 async def process_video_endpoint(request: Request):
-    temp_video_path = 'temp_video.mp4'
     try:
         response_data = await request.json()
         message = response_data.get('message')
-        # This will be the unique part of the Cloudinary URL, e.g., "v12345/my_video.mp4"
         video_filename_id = response_data.get('video')
 
         if not message or not video_filename_id:
             raise HTTPException(status_code=400, detail="Missing 'message' or 'video' in request.")
 
-        # --- Download video from Cloudinary ---
-        # IMPORTANT: Replace with your actual Cloudinary base URL
+        # --- OPTIMIZATION 1: Stream video directly from the URL ---
+        # We no longer download the video first. We build the URL for FFmpeg.
         CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dx2wns9yn/video/upload/"
         video_url = f"{CLOUDINARY_BASE_URL}{video_filename_id}"
         
-        try:
-            video_response = requests.get(video_url, stream=True)
-            video_response.raise_for_status()
-            with open(temp_video_path, 'wb') as file:
-                for chunk in video_response.iter_content(chunk_size=8192):
-                    file.write(chunk)
-        except requests.exceptions.RequestException as e:
-            raise HTTPException(status_code=404, detail=f"Could not download video from cloud: {e}")
-        
-        # --- Continue with existing logic ---
+        # --- Continue with audio generation ---
         audio_data = speech_api.speech(
             text=message, voice_id="Will", timestamp_type="word", bitrate="192k", pitch=1
         )
@@ -71,11 +60,11 @@ async def process_video_endpoint(request: Request):
         data_json = json.loads(timestamp_content.decode("utf-8"))
         phrases = group_words_into_phrases(data_json)
 
-        input_video_path = temp_video_path
         output_video_path = 'output.mp4'
 
+        # Pass the URL directly to the generation function
         generate_video_with_text(
-            input_file=input_video_path,
+            input_url=video_url, # Pass the URL instead of a file path
             audio_file=temp_audio_path,
             output_file=output_video_path,
             data_json=data_json,
@@ -87,9 +76,6 @@ async def process_video_endpoint(request: Request):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to process video on server: {str(e)}")
-    finally:
-        if os.path.exists(temp_video_path):
-            os.remove(temp_video_path)
 
 # --- Helper functions ---
 def group_words_into_phrases(words, max_words_per_phrase=3):
@@ -120,11 +106,24 @@ def overlay_text_on_video(stream, phrases):
         stream = add_timed_text(stream, p["phrase"], p["start"], p["end"])
     return stream
 
-def generate_video_with_text(input_file, audio_file, output_file, data_json, phrases):
+# Updated function to accept a URL
+def generate_video_with_text(input_url, audio_file, output_file, data_json, phrases):
     if not data_json: raise ValueError("Timestamp data is empty.")
     audio_duration = data_json[-1]['end'] + 0.5
-    input_video_stream = ffmpeg.input(input_file, stream_loop=-1, t=audio_duration).video
+    
+    # Use the input_url directly here
+    input_video_stream = ffmpeg.input(input_url, stream_loop=-1, t=audio_duration).video
     input_audio_stream = ffmpeg.input(audio_file).audio
+    
     video_with_text = overlay_text_on_video(input_video_stream, phrases)
-    (ffmpeg.output(video_with_text, input_audio_stream, output_file, vcodec='libx264', acodec='aac', strict='experimental')
-      .overwrite_output().run())
+    
+    # --- OPTIMIZATION 2: Use a faster, less memory-intensive preset ---
+    (ffmpeg.output(
+        video_with_text, 
+        input_audio_stream, 
+        output_file, 
+        vcodec='libx264', 
+        acodec='aac', 
+        strict='experimental',
+        preset='ultrafast' # Add this preset
+    ).overwrite_output().run())
