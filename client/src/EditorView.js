@@ -23,7 +23,7 @@ const EditorView = ({ videoObject, onGoBack, setGenerating }) => {
 
     try {
       // Use the environment variable to find the backend API
-      const apiUrl = process.env.REACT_APP_API_URL;
+      const apiUrl = 'https://yt-shorts-maker-1.onrender.com';
       const response = await fetch(`${apiUrl}/api/voice`, {
         method: "POST",
         headers: {
