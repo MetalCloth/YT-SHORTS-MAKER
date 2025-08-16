@@ -20,7 +20,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -66,7 +66,11 @@ async def process_video_endpoint(request: Request):
         phrases = group_words_into_phrases(data_json)
 
         # 5. Define input video path and final output path
-        input_video_path = f"video_templates/{video_filename}"
+                
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        VIDEO_DIR = os.path.join(BASE_DIR, "video_templates")
+
+        input_video_path = os.path.join(VIDEO_DIR, video_filename)
         output_video_path = 'output.mp4'
 
         # 6. Run the ffmpeg function to combine video, audio, and text
