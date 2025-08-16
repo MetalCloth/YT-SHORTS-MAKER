@@ -68,7 +68,7 @@ async def process_video_endpoint(request: Request):
         phrases = group_words_into_phrases(data_json)
 
         # 5. Define input video path and final output path
-        input_video_path = f"server/video_templates/{video_filename}"
+        input_video_path = f"video_templates/{video_filename}"
         output_video_path = 'output.mp4'
 
         # 6. Run the ffmpeg function to combine video, audio, and text
