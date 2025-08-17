@@ -159,14 +159,20 @@ def generate_video_with_text(input_url, audio_file, output_file, data_json, phra
     video_with_text = overlay_text_on_video(input_video_stream, phrases)
     
     # --- OPTIMIZATION 2: Use a faster, less memory-intensive preset ---
-    (ffmpeg.output(
-        video_with_text, 
-        input_audio_stream, 
-        output_file, 
-        vcodec='libx264', 
-        acodec='aac', 
-        strict='experimental',
-        preset='ultrafast' # Add this preset
-    ).overwrite_output().run())
-
+    (
+    ffmpeg
+    .output(
+        video_with_text,
+        input_audio_stream,
+        output_file,
+        vcodec='libx264',
+        acodec='aac',         
+        preset='ultrafast',
+        tune='zerolatency',
+        crf=28,
+        threads=0
+    )
+    .overwrite_output()
+    .run()
+)
 
