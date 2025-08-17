@@ -3,7 +3,11 @@ import VideoCard from './VideoCard';
 import EditorView from './EditorView';
 import './App.css';
 
-// IMPORTANT: Replace these with your actual Cloudinary URLs
+/*
+  args:
+    url: the cloudinary url of the video
+    filename: the filename of the video
+*/
 const videoData = [
   { 
     url: 'https://res.cloudinary.com/dx2wns9yn/video/upload/v1755359695/github_video_1_dcitx6.mp4', 
@@ -52,7 +56,7 @@ function App() {
         <>
           <div className="header">
             <h1>Templates</h1>
-            <p className="subtitle">Professional video templates for content creators</p>
+            <p className="subtitle">Video templates for content creators</p>
           </div>
           <div className="templates-grid">
             {videoData.map((video, index) => (

@@ -1,4 +1,3 @@
-// src/VideoCard.js
 import React, { useRef } from 'react';
 
 const VideoCard = ({ videoSrc, onClick }) => {
