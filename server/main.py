@@ -40,7 +40,7 @@ async def process_video_endpoint(request: Request):
     words=[]
 
     def on_word_boundary(evt: speechsdk.SpeechSynthesisWordBoundaryEventArgs):
-            timestamp_ms = ((evt.audio_offset + 5000) / 10000)
+            timestamp_ms = ((evt.audio_offset) / 10000)
             word = evt.text
             end=(evt.duration.total_seconds()*1000) + timestamp_ms
             words.append({'word':word,'start':timestamp_ms,'end':end})
