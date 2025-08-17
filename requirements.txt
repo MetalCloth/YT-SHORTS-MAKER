@@ -6,4 +6,5 @@ unrealspeech
 cloudinary
 ffmpeg-python
 pydub
+azure-cognitiveservices-speech
 librosa

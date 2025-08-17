@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import azure.cognitiveservices.speech as speechsdk
 import ffmpeg
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,14 +27,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-api_key = os.getenv("UNREAL_SPEECH_API_KEY")
-if not api_key:
-    raise ValueError("UNREAL_SPEECH_API_KEY not found in environment variables.")
-speech_api = UnrealSpeechAPI(api_key)
+speech_key=os.getenv('SPEECH_KEY')
+service_region=os.getenv('SERVICE_REGION')
+
+
+if not speech_key:
+    raise ValueError("Speech Key not available TATA")
 
 # --- Main API Endpoint ---
 @app.post('/api/voice')
 async def process_video_endpoint(request: Request):
+    words=[]
+
+    def on_word_boundary(evt: speechsdk.SpeechSynthesisWordBoundaryEventArgs):
+            timestamp_ms = ((evt.audio_offset + 5000) / 10000)
+            word = evt.text
+            end=(evt.duration.total_seconds()*1000) + timestamp_ms
+            words.append({'word':word,'start':timestamp_ms,'end':end})
+            print(f"WORD: '{word}', TIMESTAMP: {timestamp_ms:.2f} ms, END: {end}")
     try:
         response_data = await request.json()
         message = response_data.get('message')
@@ -48,17 +59,46 @@ async def process_video_endpoint(request: Request):
         video_url = f"{CLOUDINARY_BASE_URL}{video_filename_id}"
         
         # --- Continue with audio generation ---
-        audio_data = speech_api.speech(
-            text=message, voice_id="Will", timestamp_type="word", bitrate="192k", pitch=1
+
+
+        speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+        speech_config.speech_synthesis_voice_name= "hi-IN-MadhurNeural"
+        speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+
+        speech_config.set_speech_synthesis_output_format(
+            speechsdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
         )
-        audio_content = requests.get(audio_data['OutputUri']).content
-        timestamp_content = requests.get(audio_data['TimestampsUri']).content
+        audio_output = speechsdk.audio.AudioOutputConfig(filename="output.mp3")
 
-        temp_audio_path = 'temp_audio.mp3'
-        with open(temp_audio_path, 'wb') as file:
-            file.write(audio_content)
+        speech_synthesizer = speechsdk.SpeechSynthesizer(
+            speech_config=speech_config, audio_config=audio_output
+        )
 
-        data_json = json.loads(timestamp_content.decode("utf-8"))
+
+        speech_synthesizer.synthesis_word_boundary.connect(on_word_boundary)
+
+        result = speech_synthesizer.speak_text_async(message).get()
+
+
+        data_json=words
+
+        for i in data_json:    
+            i['start']=i['start']/1000
+            i['end']=i['end']/1000
+
+
+        # audio_data = speech_api.speech(
+        #     text=message, voice_id="Will", timestamp_type="word", bitrate="192k", pitch=1
+        # )
+
+        
+        # audio_content = requests.get(audio_data['OutputUri']).content
+        # timestamp_content = requests.get(audio_data['TimestampsUri']).content
+
+        # temp_audio_path = 'temp_audio.mp3'
+        # with open(temp_audio_path, 'wb') as file:
+        #     file.write(audio_content)
+
         phrases = group_words_into_phrases(data_json)
 
         output_video_path = 'output.mp4'
@@ -66,7 +106,7 @@ async def process_video_endpoint(request: Request):
         # Pass the URL directly to the generation function
         generate_video_with_text(
             input_url=video_url, # Pass the URL instead of a file path
-            audio_file=temp_audio_path,
+            audio_file='output.mp3',
             output_file=output_video_path,
             data_json=data_json,
             phrases=phrases
@@ -128,3 +168,5 @@ def generate_video_with_text(input_url, audio_file, output_file, data_json, phra
         strict='experimental',
         preset='ultrafast' # Add this preset
     ).overwrite_output().run())
+
+
