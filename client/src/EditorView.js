@@ -53,7 +53,7 @@ const EditorView = ({ videoObject, onGoBack, setGenerating }) => {
       document.body.removeChild(a);
 
     } catch (error) {
-      console.error("Error during video processing:", error);
+      console.error("Error during video processing or Server Overload:", error);
       alert(`Failed to process video. Reason: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -105,5 +105,6 @@ const EditorView = ({ videoObject, onGoBack, setGenerating }) => {
     </div>
   );
 };
+
 
 export default EditorView;
