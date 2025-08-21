@@ -15,7 +15,6 @@ Stop spending hours editing. **AutoShorts** is a powerful tool that transforms y
   
 * **Output**
   
-  https://github.com/user-attachments/assets/46b975e5-2262-4b04-b1b1-d193c9c95485
 
 
 
